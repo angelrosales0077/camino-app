@@ -1,0 +1,15 @@
+providers = ["node"]
+
+[phases.setup]
+# Ensure pnpm is available (root package.json uses "packageManager": "pnpm@9.1.0").
+cmds = ["corepack enable", "corepack prepare pnpm@9.1.0 --activate"]
+
+[phases.install]
+cmds = ["pnpm install --frozen-lockfile"]
+
+[phases.build]
+# Build backend and its workspace dependencies (@camino/db, @camino/shared, etc.)
+cmds = ["pnpm -r --filter @camino/backend... build"]
+
+[start]
+cmd = "pnpm --filter @camino/backend start"
