@@ -1,0 +1,7 @@
+{
+  "name": "@camino/eslint",
+  "version": "0.0.1",
+  "description": "ESLint configurations",
+  "private": true,
+  "files": ["base.js", "react.js", "node.js"]
+}

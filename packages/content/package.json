@@ -1,0 +1,23 @@
+{
+  "name": "@camino/content",
+  "version": "0.0.1",
+  "description": "Camino - Content scraping and curation scripts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "scrape:lauds": "tsx src/scrapers/lauds.ts",
+    "scrape:gospel": "tsx src/scrapers/gospel.ts",
+    "seed": "tsx src/seed.ts"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "node-fetch": "^3.3.0",
+    "@camino/db": "workspace:*",
+    "@camino/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "typescript": "^5.4.0"
+  }
+}

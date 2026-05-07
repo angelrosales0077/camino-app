@@ -1,0 +1,104 @@
+/**
+ * @camino/mobile - Global Tailwind CSS
+ * Used by NativeWind for React Native styling
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Tipografía base */
+  @font-face {
+    font-family: 'Lora';
+    src: url('./assets/fonts/Lora-Regular.ttf');
+    font-weight: 400;
+  }
+
+  @font-face {
+    font-family: 'Lora';
+    src: url('./assets/fonts/Lora-SemiBold.ttf');
+    font-weight: 600;
+  }
+
+  @font-face {
+    font-family: 'Lora';
+    src: url('./assets/fonts/Lora-Italic.ttf');
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: 'Inter';
+    src: url('./assets/fonts/Inter-Regular.ttf');
+    font-weight: 400;
+  }
+
+  @font-face {
+    font-family: 'Inter';
+    src: url('./assets/fonts/Inter-Medium.ttf');
+    font-weight: 500;
+  }
+
+  @font-face {
+    font-family: 'Inter';
+    src: url('./assets/fonts/Inter-SemiBold.ttf');
+    font-weight: 600;
+  }
+}
+
+@layer components {
+  /* Cards de contenido litúrgico */
+  .liturgy-card {
+    @apply bg-surface rounded-liturgy p-liturgy-lg border border-border;
+  }
+
+  /* Botones primarios */
+  .button-primary {
+    @apply bg-liturgy-ordinary-primary rounded-liturgy p-4 items-center justify-center;
+  }
+
+  .button-primary-text {
+    @apply font-inter text-label font-medium text-white;
+  }
+
+  /* Botones secundarios */
+  .button-secondary {
+    @apply border border-liturgy-ordinary-primary rounded-liturgy p-4 items-center justify-center;
+  }
+
+  .button-secondary-text {
+    @apply font-inter text-label font-medium text-liturgy-ordinary-primary;
+  }
+
+  /* Contenedor de pantalla */
+  .screen-container {
+    @apply flex-1 bg-background;
+  }
+
+  .screen-padding {
+    @apply p-20;
+  }
+}
+
+/* Utilidades dinámicas */
+@layer utilities {
+  .text-liturgy-color {
+    transition: color 300ms ease-out;
+  }
+
+  .flame-active {
+    animation: flame-idle 2s ease-in-out infinite;
+  }
+
+  @keyframes flame-idle {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.85;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "camino",
+  "version": "0.0.1",
+  "description": "Camino App - Oración diaria para católicos hispanohablantes",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.1.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0",
+    "eslint": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "typescript": "^5.4.0"
+    }
+  },
+  "workspaces": [
+    "apps/mobile",
+    "packages/api",
+    "packages/db",
+    "packages/shared",
+    "packages/content",
+    "tooling/tsconfig",
+    "tooling/eslint"
+  ]
+}

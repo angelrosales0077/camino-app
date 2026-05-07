@@ -1,0 +1,7 @@
+{
+  "name": "@camino/tsconfig",
+  "version": "0.0.1",
+  "description": "TypeScript configurations",
+  "private": true,
+  "files": ["base.json", "react.json", "node.json"]
+}

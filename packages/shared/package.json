@@ -1,0 +1,17 @@
+{
+  "name": "@camino/shared",
+  "version": "0.0.1",
+  "description": "Camino - Types and utilities shared across projects",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}

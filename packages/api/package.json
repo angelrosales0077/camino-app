@@ -1,0 +1,26 @@
+{
+  "name": "@camino/api",
+  "version": "0.0.1",
+  "description": "Camino - Hono backend API",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev src/index.ts",
+    "build": "wrangler build",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts"
+  },
+  "dependencies": {
+    "hono": "^4.0.0",
+    "drizzle-orm": "^0.30.0",
+    "postgres": "^3.4.0",
+    "redis": "^4.6.0",
+    "@camino/db": "workspace:*",
+    "@camino/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0",
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}

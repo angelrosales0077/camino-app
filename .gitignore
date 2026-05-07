@@ -1,0 +1,41 @@
+## Env (never commit real secrets)
+.env
+.env.*
+!.env.example
+
+## Dependencies
+node_modules/
+.pnpm-store/
+
+## Expo
+.expo/
+.expo-shared/
+
+## Build outputs
+dist/
+build/
+coverage/
+.turbo/
+**/*.tsbuildinfo
+
+## Cloudflare Wrangler temp
+.wrangler/
+**/.wrangler/
+
+## Local backups / temp
+*.bak
+%ProgramData%/
+
+## App-local envs
+apps/mobile/.env
+apps/backend/.env
+packages/db/.env
+
+## Logs and editor files
+*.log
+.DS_Store
+.vscode
+.idea
+*.swp
+*.swo
+*~
