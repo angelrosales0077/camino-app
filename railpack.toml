@@ -1,0 +1,3 @@
+[deploy]
+buildCommand = "pnpm --filter @camino/backend build"
+startCommand = "node apps/backend/dist/index.js"
