@@ -9,8 +9,6 @@
       "**/*"
     ],
     "ios": {
-      "supportsTabletMode": true,
-      "supportsLandscape": false,
       "requireFullScreen": true,
       "bundleIdentifier": "com.camino.app",
       "buildNumber": "1",
@@ -39,15 +37,10 @@
       "router": {
         "origin": false
       },
-      "eas": {}
+      "eas": {
+        "projectId": "99cc9e5b-7534-40ab-897d-92229d1751d7"
+      }
     },
-    "scheme": "camino",
-    "updates": {
-      "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/PROJECT_ID"
-    },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    }
+    "scheme": "camino"
   }
 }
