@@ -11,7 +11,7 @@ import type {
   BreviaryHour,
   BreviaryHourKey,
 } from '@camino/shared'
-import { breviaryProvider } from '../lib/breviary'
+import { breviaryProvider } from '../lib/breviary.js'
 
 const app = new Hono()
 

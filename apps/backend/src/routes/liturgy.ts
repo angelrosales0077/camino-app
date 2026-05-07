@@ -7,8 +7,8 @@ import { Hono } from 'hono'
 import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import type { DailyLiturgy, ApiResponse } from '@camino/shared'
-import { fetchExternalLiturgy } from '../lib/external'
-import { fetchSantoralForDate } from '../lib/santoral'
+import { fetchExternalLiturgy } from '../lib/external.js'
+import { fetchSantoralForDate } from '../lib/santoral.js'
 
 const app = new Hono()
 

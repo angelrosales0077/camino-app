@@ -11,7 +11,7 @@ import { z } from 'zod'
 import { and, asc, desc, eq, gt, sql } from 'drizzle-orm'
 import { getDb, prayerIntentions, prayerResponses, users, type PrayerIntention, type PrayerResponse } from '@camino/db'
 import type { ApiResponse, PaginatedResponse, PrayerIntentionFeedItem } from '@camino/shared'
-import { getCurrentUserId, requireCurrentUserId } from '../lib/auth'
+import { getCurrentUserId, requireCurrentUserId } from '../lib/auth.js'
 
 const app = new Hono()
 

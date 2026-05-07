@@ -5,7 +5,7 @@
 
 import type { Context } from 'hono'
 import { getDb, users } from '@camino/db'
-import { getDevUserId } from './devUser'
+import { getDevUserId } from './devUser.js'
 
 interface SupabaseUserPayload {
   id?: string

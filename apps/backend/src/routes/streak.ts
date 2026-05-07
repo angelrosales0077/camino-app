@@ -8,7 +8,7 @@ import { Hono } from 'hono'
 import { eq } from 'drizzle-orm'
 import { getDb, streaks, type Streak } from '@camino/db'
 import type { ApiResponse } from '@camino/shared'
-import { requireCurrentUserId } from '../lib/auth'
+import { requireCurrentUserId } from '../lib/auth.js'
 
 const app = new Hono()
 

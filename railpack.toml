@@ -1,5 +1,0 @@
-[build]
-buildCommand = "pnpm --filter @camino/backend build"
-
-[start]
-cmd = "node apps/backend/dist/index.js"

@@ -7,7 +7,7 @@ import { Hono } from 'hono'
 import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import type { GospelEntry, ApiResponse } from '@camino/shared'
-import { fetchExternalGospel } from '../lib/external'
+import { fetchExternalGospel } from '../lib/external.js'
 
 const app = new Hono()
 

@@ -13,7 +13,7 @@ import { z } from 'zod'
 import { and, desc, eq, sql } from 'drizzle-orm'
 import { getDb, journalEntries, type JournalEntry } from '@camino/db'
 import type { ApiResponse, PaginatedResponse } from '@camino/shared'
-import { requireCurrentUserId } from '../lib/auth'
+import { requireCurrentUserId } from '../lib/auth.js'
 
 const app = new Hono()
 
