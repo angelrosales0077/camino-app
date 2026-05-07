@@ -5,7 +5,8 @@ providers = ["node"]
 cmds = ["corepack enable", "corepack prepare pnpm@9.1.0 --activate"]
 
 [phases.install]
-cmds = ["pnpm install --frozen-lockfile"]
+# Ensure devDependencies are present so `tsc` is available during build.
+cmds = ["pnpm install --frozen-lockfile --prod=false"]
 
 [phases.build]
 # Build backend and its workspace dependencies (@camino/db, @camino/shared, etc.)
