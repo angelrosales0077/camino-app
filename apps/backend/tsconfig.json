@@ -13,8 +13,8 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {
-      "@camino/shared": ["../../packages/shared/dist"],
-      "@camino/db": ["../../packages/db/dist"]
+      "@camino/shared": ["../../packages/shared/src"],
+      "@camino/db": ["../../packages/db/src"]
     }
   },
   "include": ["src/**/*"],
