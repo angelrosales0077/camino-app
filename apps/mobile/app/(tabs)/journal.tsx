@@ -22,7 +22,7 @@ import {
   Typography,
   formatCaminoDate,
 } from '../../src/components/ui'
-import { neutralColors } from '../../src/theme'
+import { useCaminoTheme } from '../../src/theme'
 import { useUserStore } from '../../src/stores'
 
 const todayIso = () => new Date().toISOString().split('T')[0]
@@ -52,6 +52,7 @@ function formatEntryDate(value: Date | string) {
 function JournalEntryRow({ entry }: { entry: JournalEntry }) {
   const router = useRouter()
   const { data: gospel } = useGospel(entry.gospelDate)
+  const { colors } = useCaminoTheme()
 
   return (
     <Pressable
@@ -63,11 +64,11 @@ function JournalEntryRow({ entry }: { entry: JournalEntry }) {
       }
       style={({ pressed }) => [pressed ? styles.pressed : null]}
     >
-      <Card style={styles.entryCard}>
+      <Card style={[styles.entryCard, { backgroundColor: colors.background }]}>
         <View style={styles.entryMetaRow}>
           <Typography variant="meta">{formatEntryDate(entry.createdAt)}</Typography>
           {isWrittenToday(entry.createdAt) ? (
-            <Typography variant="meta" color={neutralColors.textSecondary}>
+            <Typography variant="meta" color={colors.textSecondary}>
               Escrita hoy
             </Typography>
           ) : null}
@@ -126,7 +127,7 @@ export default function JournalScreen() {
   }
 
   return (
-    <Screen backgroundColor={neutralColors.surface}>
+    <Screen>
       <LiturgicalHeader
         title="Mi diario espiritual"
         date={entryDate}
@@ -241,7 +242,6 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   entryCard: {
-    backgroundColor: neutralColors.background,
   },
   entryMetaRow: {
     flexDirection: 'row',

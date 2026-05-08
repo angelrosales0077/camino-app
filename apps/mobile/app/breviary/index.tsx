@@ -13,7 +13,6 @@ import {
   Typography,
   getLiturgicalPalette,
 } from '../../src/components/ui'
-import { neutralColors } from '../../src/theme'
 
 const toRoman = (value: number) => {
   const map: Record<number, string> = {
@@ -141,11 +140,9 @@ const styles = StyleSheet.create({
     width: 3,
   },
   note: {
-    color: neutralColors.textSecondary,
     marginTop: 4,
   },
   status: {
-    color: neutralColors.textMuted,
     marginTop: 8,
   },
   pressed: {

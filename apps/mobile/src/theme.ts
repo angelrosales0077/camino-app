@@ -4,6 +4,7 @@
  */
 
 import { useMemo } from 'react'
+import { useColorScheme } from 'react-native'
 
 /**
  * Paletas litúrgicas por tiempo del año
@@ -54,16 +55,102 @@ export const liturgicalPalettes = {
   },
 } as const
 
+export const darkLiturgicalPalettes = {
+  ordinary: {
+    name: 'Tiempo Ordinario',
+    primary: '#7EA88B',
+    accent: '#A8C2AF',
+    light: '#1F2A21',
+  },
+  advent: {
+    name: 'Adviento',
+    primary: '#A98BC8',
+    accent: '#C6B3D8',
+    light: '#282033',
+  },
+  christmas: {
+    name: 'Navidad',
+    primary: '#D0B264',
+    accent: '#E0C987',
+    light: '#2D281B',
+  },
+  lent: {
+    name: 'Cuaresma',
+    primary: '#B38AC7',
+    accent: '#C9AAD8',
+    light: '#2A2130',
+  },
+  'holy-week': {
+    name: 'Semana Santa',
+    primary: '#C77B82',
+    accent: '#D6A0A5',
+    light: '#302022',
+  },
+  easter: {
+    name: 'Pascua',
+    primary: '#D0B264',
+    accent: '#E0C987',
+    light: '#2D281B',
+  },
+  martyrs: {
+    name: 'Mártires',
+    primary: '#C98282',
+    accent: '#D7A3A3',
+    light: '#302120',
+  },
+} as const
+
 /**
  * Colores neutrales base (siempre presentes)
  */
-export const neutralColors = {
+export interface NeutralColors {
+  background: string
+  surface: string
+  border: string
+  textPrimary: string
+  textSecondary: string
+  textMuted: string
+}
+
+export const neutralColors: NeutralColors = {
   background: '#FAFAF7',
   surface: '#F3F2EC',
   border: '#E0DDD4',
   textPrimary: '#1C1A15',
   textSecondary: '#6B6559',
   textMuted: '#A09890',
+}
+
+export const darkNeutralColors: NeutralColors = {
+  background: '#1A1916',
+  surface: '#222119',
+  border: '#333128',
+  textPrimary: '#F0EDE5',
+  textSecondary: '#8A8070',
+  textMuted: '#5A5548',
+}
+
+export type CaminoColorScheme = 'light' | 'dark'
+
+export function getNeutralColors(scheme: CaminoColorScheme) {
+  return scheme === 'dark' ? darkNeutralColors : neutralColors
+}
+
+export function getLiturgicalPalette(
+  season: keyof typeof liturgicalPalettes = 'ordinary',
+  scheme: CaminoColorScheme = 'light'
+) {
+  const palettes = scheme === 'dark' ? darkLiturgicalPalettes : liturgicalPalettes
+  return palettes[season]
+}
+
+export function useCaminoTheme() {
+  const scheme: CaminoColorScheme = useColorScheme() === 'dark' ? 'dark' : 'light'
+  return useMemo(() => ({
+    scheme,
+    colors: getNeutralColors(scheme),
+    liturgicalPalettes: scheme === 'dark' ? darkLiturgicalPalettes : liturgicalPalettes,
+  }), [scheme])
 }
 
 /**
@@ -93,12 +180,13 @@ export const typography = {
  * @param season - Tiempo litúrgico actual (ej: 'ordinary', 'advent')
  */
 export function useLiturgicalColors(season: keyof typeof liturgicalPalettes = 'ordinary') {
+  const theme = useCaminoTheme()
   return useMemo(() => {
     return {
-      ...neutralColors,
-      liturgy: liturgicalPalettes[season],
+      ...theme.colors,
+      liturgy: getLiturgicalPalette(season, theme.scheme),
     }
-  }, [season])
+  }, [season, theme.colors, theme.scheme])
 }
 
 /**

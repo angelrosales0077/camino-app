@@ -117,6 +117,41 @@ export interface PatristicComment {
   text: string
 }
 
+export type DailyReadingType =
+  | 'first-reading'
+  | 'psalm'
+  | 'second-reading'
+  | 'gospel'
+  | 'alleluia'
+  | 'other'
+
+export interface DailyReading {
+  type: DailyReadingType
+  title: string
+  reference?: string | null
+  text: string
+}
+
+export interface ReadingCommentary {
+  title: string
+  author: string
+  authorType: 'saint' | 'pope' | 'church-father' | 'doctor-of-the-church' | 'other'
+  relatedTo?: DailyReadingType | 'general'
+  text: string
+  sourceName?: string | null
+  sourceUrl?: string | null
+  needsReview: boolean
+}
+
+export interface DailyReadingsResponse {
+  date: string
+  liturgicalDayName: string
+  season: LiturgicalSeason
+  color?: string
+  readings: DailyReading[]
+  commentary?: ReadingCommentary | null
+}
+
 export type BreviaryHourKey =
   | 'office-of-readings'
   | 'lauds'

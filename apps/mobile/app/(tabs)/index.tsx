@@ -18,9 +18,8 @@ import {
   SectionTitle,
   Typography,
   formatCaminoDate,
-  getLiturgicalPalette,
 } from '../../src/components/ui'
-import { neutralColors } from '../../src/theme'
+import { useCaminoTheme } from '../../src/theme'
 import type { LiturgicalSeason } from '@camino/shared'
 import { useUserStore } from '../../src/stores'
 
@@ -114,10 +113,17 @@ function normalizeLiturgicalName(
   return trimmed
 }
 
-function formatHomeContext(date: string, season?: LiturgicalSeason) {
+function formatHomeDate(date: string) {
   const formattedDate = formatCaminoDate(date).replace(/ de \d{4}$/, '')
-  const seasonName = season ? seasonLabels[season] : 'Tiempo Ordinario'
-  return `${capitalize(formattedDate)} · ${seasonName}`
+  return capitalize(formattedDate)
+}
+
+function normalizeCelebrationName(value: string | undefined) {
+  const trimmed = value?.trim()
+  if (!trimmed || trimmed.toLowerCase() === 'feria') {
+    return null
+  }
+  return trimmed
 }
 
 export default function HomeScreen() {
@@ -136,16 +142,18 @@ export default function HomeScreen() {
   } = useDailyLiturgy(currentDate)
   const { data: streak } = useStreak()
   const checkInPrayer = useCheckInPrayer()
-  const palette = getLiturgicalPalette(liturgy?.season)
+  const { colors, liturgicalPalettes } = useCaminoTheme()
+  const palette = liturgicalPalettes[liturgy?.season || 'ordinary']
   const today = liturgy?.date || currentDate
   const gospelDate = gospel?.date || today
   const saint = liturgy?.saintOfDay || null
   const otherSaints = liturgy?.otherSaintsOfDay || []
-  const celebrationName = normalizeLiturgicalName(
-    liturgy?.liturgicalDayName || liturgy?.celebrationName,
+  const liturgicalDayName = normalizeLiturgicalName(
+    liturgy?.liturgicalDayName,
     today,
     liturgy?.season
   )
+  const celebrationName = normalizeCelebrationName(liturgy?.celebrationName)
   const completedToday = isAuthenticated && streak?.lastActiveDate === currentDate
 
   return (
@@ -153,10 +161,13 @@ export default function HomeScreen() {
       <Card style={[styles.headerCard, { backgroundColor: palette.light }]}>
         <View style={[styles.rule, { backgroundColor: palette.primary }]} />
         <Typography variant="meta">
-          {formatHomeContext(today, liturgy?.season)}
+          {formatHomeDate(today)}
         </Typography>
         <Typography variant="screenTitle" style={styles.headerTitle}>
           Buenos días
+        </Typography>
+        <Typography variant="label" color={colors.textSecondary}>
+          {liturgyLoading ? 'Cargando calendario...' : liturgicalDayName}
         </Typography>
       </Card>
 
@@ -188,7 +199,10 @@ export default function HomeScreen() {
                 {firstSentence(gospel.shortQuote || gospel.text)}
               </Typography>
               <Typography variant="meta" style={styles.cardFooter}>
-                Leer completo
+                También disponibles las lecturas del día
+              </Typography>
+              <Typography variant="label" color={palette.primary} style={styles.cardAction}>
+                Leer lecturas
               </Typography>
             </View>
           ) : (
@@ -213,57 +227,61 @@ export default function HomeScreen() {
         </Card>
       </Pressable>
 
-      <SectionTitle
-        title={saint ? 'Santo del día' : 'Celebración del día'}
-      />
-      <Card style={styles.sectionCard}>
-        {liturgyLoading ? (
-          <Typography variant="spiritualBody">
-            Cargando calendario...
-          </Typography>
-        ) : liturgyError ? (
-          <Typography variant="spiritualBody">
-            No se pudo cargar la celebración del día.
-          </Typography>
-        ) : saint ? (
-          <View>
-            <Typography variant="spiritualBody">
-              {saint.nameEs}
-            </Typography>
-            {saint.shortBioEs ? (
-              <Typography variant="meta" style={styles.cardText}>
-                {saint.shortBioEs}
+      {liturgyLoading || liturgyError || saint || celebrationName ? (
+        <>
+          <SectionTitle
+            title={saint ? 'Santo del día' : 'Celebración del día'}
+          />
+          <Card style={styles.sectionCard}>
+            {liturgyLoading ? (
+              <Typography variant="spiritualBody">
+                Cargando calendario...
               </Typography>
-            ) : null}
-            {saint.quoteEs ? (
-              <Typography variant="spiritualBody" style={styles.saintQuote}>
-                {saint.quoteEs}
+            ) : liturgyError ? (
+              <Typography variant="spiritualBody">
+                No se pudo cargar la celebración del día.
               </Typography>
-            ) : null}
-            {otherSaints.length > 0 ? (
-              <Typography variant="meta" style={styles.cardText}>
-                También se recuerda: {otherSaints
-                  .slice(0, 3)
-                  .map((item) => item.nameEs)
-                  .join(', ')}
-              </Typography>
-            ) : null}
-          </View>
-        ) : (
-          <View>
-            <Typography variant="spiritualBody">
-              {celebrationName}
-            </Typography>
-            <Typography variant="meta" style={styles.cardText}>
-              Hoy seguimos la liturgia propia del día.
-            </Typography>
-          </View>
-        )}
-      </Card>
+            ) : saint ? (
+              <View>
+                <Typography variant="spiritualBody">
+                  {saint.nameEs}
+                </Typography>
+                {saint.shortBioEs ? (
+                  <Typography variant="meta" style={styles.cardText}>
+                    {saint.shortBioEs}
+                  </Typography>
+                ) : null}
+                {saint.quoteEs ? (
+                  <Typography variant="spiritualBody" style={styles.saintQuote}>
+                    {saint.quoteEs}
+                  </Typography>
+                ) : null}
+                {otherSaints.length > 0 ? (
+                  <Typography variant="meta" style={styles.cardText}>
+                    También se recuerda: {otherSaints
+                      .slice(0, 3)
+                      .map((item) => item.nameEs)
+                      .join(', ')}
+                  </Typography>
+                ) : null}
+              </View>
+            ) : (
+              <View>
+                <Typography variant="spiritualBody">
+                  {celebrationName}
+                </Typography>
+                <Typography variant="meta" style={styles.cardText}>
+                  Hoy seguimos la liturgia propia del día.
+                </Typography>
+              </View>
+            )}
+          </Card>
+        </>
+      ) : null}
 
       <Card style={styles.pathDays}>
         <Typography variant="meta">Días de camino</Typography>
-        <Typography variant="sectionTitle" color={neutralColors.textPrimary}>
+        <Typography variant="sectionTitle">
           {String(streak?.currentCount ?? 0)}
         </Typography>
         <Typography variant="spiritualBody" style={styles.pathMessage}>
@@ -328,6 +346,9 @@ const styles = StyleSheet.create({
   },
   cardFooter: {
     marginTop: 18,
+  },
+  cardAction: {
+    marginTop: 8,
   },
   pathDays: {
     alignItems: 'center',

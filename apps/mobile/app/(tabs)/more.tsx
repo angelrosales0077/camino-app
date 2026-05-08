@@ -12,6 +12,7 @@ import {
   Typography,
 } from '../../src/components/ui'
 import { clearSession } from '../../src/lib/auth'
+import env from '../../src/config/env'
 import { useUserStore } from '../../src/stores'
 
 export default function MoreScreen() {
@@ -47,6 +48,20 @@ export default function MoreScreen() {
           )}
         </View>
       </Card>
+
+      {env.enableApiDiagnostics ? (
+        <Card>
+          <Typography variant="sectionTitle">Diagnóstico</Typography>
+          <Typography variant="meta" style={styles.text}>
+            API URL: {env.apiUrl}
+          </Typography>
+          <View style={styles.actions}>
+            <Button onPress={() => router.push('/diagnostics')} variant="secondary">
+              Test backend connection
+            </Button>
+          </View>
+        </Card>
+      ) : null}
     </Screen>
   )
 }

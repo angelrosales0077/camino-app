@@ -20,7 +20,7 @@ import {
   Screen,
   Typography,
 } from '../../src/components/ui'
-import { neutralColors } from '../../src/theme'
+import { useCaminoTheme } from '../../src/theme'
 import { useUserStore } from '../../src/stores'
 
 const MAX_LENGTH = 200
@@ -77,6 +77,7 @@ export default function CommunityScreen() {
   const [text, setText] = useState('')
   const [isAnonymous, setIsAnonymous] = useState(true)
   const [feedback, setFeedback] = useState<string | null>(null)
+  const { colors } = useCaminoTheme()
 
   const handleCreate = async () => {
     const trimmed = text.trim()
@@ -124,11 +125,11 @@ export default function CommunityScreen() {
               setFeedback(null)
             }}
             placeholder="Escribí una intención breve."
-            placeholderTextColor={neutralColors.textMuted}
+            placeholderTextColor={colors.textMuted}
             multiline
             textAlignVertical="top"
             maxLength={MAX_LENGTH}
-            style={styles.input}
+            style={[styles.input, { color: colors.textPrimary }]}
           />
           <Typography variant="meta" style={styles.counter}>
             {text.length}/{MAX_LENGTH}
@@ -137,7 +138,13 @@ export default function CommunityScreen() {
             onPress={() => setIsAnonymous((value) => !value)}
             style={({ pressed }) => [styles.optionRow, pressed ? styles.pressed : null]}
           >
-            <View style={[styles.checkbox, isAnonymous ? styles.checkboxActive : null]} />
+            <View
+              style={[
+                styles.checkbox,
+                { borderColor: colors.border },
+                isAnonymous ? { backgroundColor: colors.textPrimary } : null,
+              ]}
+            />
             <Typography variant="body">Publicar como anónima</Typography>
           </Pressable>
           <View style={styles.actions}>
@@ -204,7 +211,6 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   meta: {
-    color: neutralColors.textMuted,
     marginTop: 10,
   },
   cardAction: {
@@ -214,7 +220,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   input: {
-    color: neutralColors.textPrimary,
     fontFamily: 'Lora-Regular',
     fontSize: 17,
     lineHeight: 28,
@@ -232,14 +237,10 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   checkbox: {
-    borderColor: neutralColors.border,
     borderRadius: 4,
     borderWidth: 1,
     height: 18,
     width: 18,
-  },
-  checkboxActive: {
-    backgroundColor: neutralColors.textPrimary,
   },
   feedback: {
     marginBottom: 16,

@@ -28,6 +28,8 @@ export const API_ENDPOINTS = {
   // Gospel endpoints
   GOSPEL_TODAY: '/api/gospel/today',
   GOSPEL_BY_DATE: (date: string) => `/api/gospel/${date}`,
+  READINGS_TODAY: '/api/readings/today',
+  READINGS_BY_DATE: (date: string) => `/api/readings/${date}`,
   
   // Liturgy endpoints
   LITURGY_TODAY: '/api/liturgy/today',

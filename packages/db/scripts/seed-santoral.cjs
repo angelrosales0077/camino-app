@@ -5,12 +5,27 @@ const postgres = require('postgres')
 const envPath = path.resolve(__dirname, '../../../.env')
 config({ path: envPath })
 
-if (!process.env.DATABASE_URL) {
+const dryRun = (process.env.SANTORAL_DRY_RUN || '').trim() === '1'
+
+if (!dryRun && !process.env.DATABASE_URL) {
   throw new Error('DATABASE_URL is not set')
 }
 
-const sql = postgres(process.env.DATABASE_URL, { ssl: 'require' })
+const sql = dryRun ? null : postgres(process.env.DATABASE_URL, { ssl: 'require' })
 const year = Number(process.env.SANTORAL_YEAR || new Date().getFullYear())
+const singleDate = (process.env.SANTORAL_DATE || '').trim()
+const singleMonth = Number(process.env.SANTORAL_MONTH || '')
+const singleDay = Number(process.env.SANTORAL_DAY || '')
+
+function parseIsoDate(value) {
+  const m = value.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!m) return null
+  const y = Number(m[1])
+  const month = Number(m[2])
+  const day = Number(m[3])
+  if (!y || month < 1 || month > 12 || day < 1 || day > 31) return null
+  return { year: y, month, day }
+}
 const VATICAN_BASE_URL = 'https://www.vaticannews.va/es/santos'
 const FANDOM_BASE_URL =
   'https://santoral.fandom.com/es/wiki/Santoral_Wiki:Artículo_del_día'
@@ -147,12 +162,14 @@ async function fetchVatican(month, day) {
   }
 
   const rawLines = stripHtmlToLines(html)
-  const dateIndex = rawLines.findIndex((line) => /^fecha\s+\d{2}\s+/i.test(line))
-  const lines = rawLines
-    .slice(dateIndex === -1 ? 0 : dateIndex + 1)
-    .filter((line) => !isBoilerplate(line))
-  const title = lines.find((line) => !isBoilerplate(line))
-  if (!title || /^buscar$/i.test(title)) {
+  const lines = rawLines.filter((line) => !isBoilerplate(line))
+
+  // Vatican pages don't always contain a stable "Fecha DD ..." marker in the extracted text.
+  // Pick the first saint-like title line instead.
+  const title = lines.find((line) =>
+    /^(s\.|ss\.|san|santo|santa|santos|santas|beato|beata|beatos|beatas|nuestra se)/i.test(line.trim())
+  )
+  if (!title || /^buscar$/i.test(title.trim())) {
     return []
   }
 
@@ -199,6 +216,10 @@ async function fetchFandom(month, day) {
 }
 
 async function upsertCandidate(month, day, candidate) {
+  if (dryRun) {
+    return
+  }
+
   const slug = slugify(candidate.nameEs)
   const romcalKey = `santoral:${slug}`
 
@@ -312,6 +333,15 @@ async function seedDay(month, day) {
     })),
   ])
 
+  if (dryRun) {
+    const label = `${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    console.log(`DRY RUN ${label}: ${candidates.length} candidates`)
+    for (const candidate of candidates.slice(0, 6)) {
+      console.log(`  - ${candidate.nameEs} (${candidate.sourceName})`)
+    }
+    return candidates.length
+  }
+
   for (const [index, candidate] of candidates.entries()) {
     await upsertCandidate(month, day, {
       ...candidate,
@@ -325,16 +355,44 @@ async function seedDay(month, day) {
 
 async function run() {
   let total = 0
+
+  const parsed = singleDate ? parseIsoDate(singleDate) : null
+  const targetYear = parsed?.year ?? year
+
+  if (parsed) {
+    console.log(`Seeding santoral for ${singleDate}...`)
+    total += await seedDay(parsed.month, parsed.day)
+    console.log(`Seeded ${total} santoral rows for ${singleDate}`)
+    if (sql) await sql.end()
+    return
+  }
+
+  if (Number.isFinite(singleMonth) && Number.isFinite(singleDay) && singleMonth >= 1 && singleMonth <= 12 && singleDay >= 1 && singleDay <= 31) {
+    const key = `${String(singleMonth).padStart(2, '0')}-${String(singleDay).padStart(2, '0')}`
+    console.log(`Seeding santoral for ${targetYear}-${key}...`)
+    total += await seedDay(singleMonth, singleDay)
+    console.log(`Seeded ${total} santoral rows for ${targetYear}-${key}`)
+    if (sql) await sql.end()
+    return
+  }
+
+  console.log(`Seeding santoral rows for full year ${targetYear}...`)
   for (let month = 1; month <= 12; month += 1) {
-    const daysInMonth = new Date(year, month, 0).getDate()
+    const daysInMonth = new Date(targetYear, month, 0).getDate()
+    console.log(`Month ${String(month).padStart(2, '0')} (${daysInMonth} days)`)
     for (let day = 1; day <= daysInMonth; day += 1) {
-      total += await seedDay(month, day)
+      const key = `${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+      const seeded = await seedDay(month, day)
+      total += seeded
+      if (seeded > 0) {
+        console.log(`  ${key}: +${seeded}`)
+      }
       await sleep(120)
     }
   }
 
-  console.log(`Seeded ${total} santoral rows for ${year}`)
-  await sql.end()
+  console.log(`Seeded ${total} santoral rows for ${targetYear}`)
+  if (sql) await sql.end()
 }
 
 run().catch((err) => {

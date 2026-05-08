@@ -22,6 +22,7 @@ import { journalRoutes } from './routes/journal.js'
 import { streakRoutes } from './routes/streak.js'
 import { intentionRoutes } from './routes/intentions.js'
 import { breviaryRoutes } from './routes/breviary.js'
+import { readingsRoutes } from './routes/readings.js'
 
 const app = new Hono()
 
@@ -39,6 +40,7 @@ app.route('/api/journal', journalRoutes)
 app.route('/api/streak', streakRoutes)
 app.route('/api/intentions', intentionRoutes)
 app.route('/api/breviary', breviaryRoutes)
+app.route('/api/readings', readingsRoutes)
 
 // 404 handler
 app.notFound((c) => c.json({ error: 'Not Found', path: c.req.path }, 404))

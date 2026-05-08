@@ -10,6 +10,7 @@ import type {
   BreviaryDay,
   BreviaryHour,
   BreviaryHourKey,
+  DailyReadingsResponse,
   DailyLiturgy,
   GospelEntry,
   PaginatedResponse,
@@ -110,6 +111,31 @@ export function useLiturgicalColors() {
   }
 
   return palettes[season]
+}
+
+export function useDailyReadings(date: string = 'today') {
+  const token = useUserStore((state) => state.authToken)
+
+  return useQuery({
+    queryKey: ['readings', date],
+    queryFn: async () => {
+      const endpoint = date === 'today'
+        ? API_ENDPOINTS.READINGS_TODAY
+        : API_ENDPOINTS.READINGS_BY_DATE(date)
+      const result = await apiClient.get<DailyReadingsResponse>(
+        endpoint,
+        token || undefined
+      )
+
+      if (!result.success) {
+        throw new Error(result.error)
+      }
+
+      return result.data
+    },
+    staleTime: CACHE_TIMES.GOSPEL,
+    gcTime: GC_TIMES.GOSPEL,
+  })
 }
 
 export function useBreviaryDay(date: string = 'today') {

@@ -21,7 +21,7 @@ import {
   Typography,
   formatCaminoDate,
 } from '../../src/components/ui'
-import { neutralColors } from '../../src/theme'
+import { useCaminoTheme } from '../../src/theme'
 
 function formatEntryDate(value: Date | string) {
   return new Intl.DateTimeFormat('es-AR', {
@@ -43,6 +43,7 @@ export default function JournalEntryScreen() {
   const [isEditing, setIsEditing] = useState(false)
   const [content, setContent] = useState('')
   const [saveState, setSaveState] = useState<'idle' | 'saved' | 'error'>('idle')
+  const { colors } = useCaminoTheme()
 
   useEffect(() => {
     if (entry && !isEditing) {
@@ -98,7 +99,7 @@ export default function JournalEntryScreen() {
   }
 
   return (
-    <Screen backgroundColor={neutralColors.surface}>
+    <Screen>
       <LiturgicalHeader
         title="Reflexión"
         date={entry?.gospelDate}
@@ -118,7 +119,7 @@ export default function JournalEntryScreen() {
         />
       ) : (
         <View>
-          <Card style={styles.metaCard}>
+          <Card style={[styles.metaCard, { backgroundColor: colors.background }]}>
             <Typography variant="meta">Escrita el {formatEntryDate(entry.createdAt)}</Typography>
             <Typography variant="meta" style={styles.metaLine}>
               Fecha del Evangelio: {entry.gospelDate}
@@ -164,7 +165,7 @@ export default function JournalEntryScreen() {
             </View>
           ) : (
             <View>
-              <Card style={styles.contentCard}>
+              <Card style={[styles.contentCard, { backgroundColor: colors.background }]}>
                 <Typography variant="spiritualBody">
                   {entry.content}
                 </Typography>
@@ -191,15 +192,12 @@ export default function JournalEntryScreen() {
 
 const styles = StyleSheet.create({
   metaCard: {
-    backgroundColor: neutralColors.background,
     marginBottom: 18,
   },
   metaLine: {
     marginTop: 8,
   },
-  contentCard: {
-    backgroundColor: neutralColors.background,
-  },
+  contentCard: {},
   actions: {
     gap: 10,
     marginTop: 18,

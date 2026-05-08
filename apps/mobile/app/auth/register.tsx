@@ -8,7 +8,7 @@ import {
   Screen,
   Typography,
 } from '../../src/components/ui'
-import { liturgicalPalettes, neutralColors } from '../../src/theme'
+import { useCaminoTheme } from '../../src/theme'
 import { getSessionCredentials, signUpWithPassword } from '../../src/lib/auth'
 import { useUserStore } from '../../src/stores'
 
@@ -20,6 +20,7 @@ export default function RegisterScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const { colors, liturgicalPalettes } = useCaminoTheme()
 
   const handleRegister = async () => {
     if (!email.trim() || password.length < 6 || isSubmitting) {
@@ -63,16 +64,16 @@ export default function RegisterScreen() {
             autoCapitalize="none"
             keyboardType="email-address"
             placeholder="Email"
-            placeholderTextColor={neutralColors.textMuted}
-            style={styles.input}
+            placeholderTextColor={colors.textMuted}
+            style={[styles.input, { borderBottomColor: colors.border, color: colors.textPrimary }]}
           />
           <TextInput
             value={password}
             onChangeText={setPassword}
             secureTextEntry
             placeholder="Contraseña"
-            placeholderTextColor={neutralColors.textMuted}
-            style={styles.input}
+            placeholderTextColor={colors.textMuted}
+            style={[styles.input, { borderBottomColor: colors.border, color: colors.textPrimary }]}
           />
         </View>
         <Typography variant="meta" style={styles.hint}>
@@ -84,7 +85,7 @@ export default function RegisterScreen() {
           </Typography>
         ) : null}
         {success ? (
-          <Typography variant="meta" style={styles.success}>
+          <Typography variant="meta" color={liturgicalPalettes.ordinary.primary} style={styles.success}>
             {success}
           </Typography>
         ) : null}
@@ -109,9 +110,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   input: {
-    borderBottomColor: neutralColors.border,
     borderBottomWidth: 1,
-    color: neutralColors.textPrimary,
     fontFamily: 'Inter-Regular',
     fontSize: 16,
     lineHeight: 24,
@@ -128,7 +127,6 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
   success: {
-    color: liturgicalPalettes.ordinary.primary,
     marginTop: 14,
   },
 })

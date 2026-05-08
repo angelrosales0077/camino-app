@@ -15,7 +15,13 @@ import {
   type TextStyle,
   type ViewStyle,
 } from 'react-native'
-import { liturgicalPalettes, neutralColors } from '../../theme'
+import {
+  getLiturgicalPalette as getThemeLiturgicalPalette,
+  liturgicalPalettes,
+  neutralColors,
+  type NeutralColors,
+  useCaminoTheme,
+} from '../../theme'
 import type { LiturgicalSeason } from '@camino/shared'
 
 const fonts = {
@@ -51,11 +57,13 @@ interface ScreenProps {
 export function Screen({
   children,
   padded = true,
-  backgroundColor = neutralColors.background,
+  backgroundColor,
 }: ScreenProps) {
+  const { colors } = useCaminoTheme()
+
   return (
     <ScrollView
-      style={[styles.screen, { backgroundColor }]}
+      style={[styles.screen, { backgroundColor: backgroundColor || colors.background }]}
       contentContainerStyle={[
         styles.screenContent,
         padded ? styles.screenPadded : null,
@@ -72,7 +80,8 @@ interface CardProps {
 }
 
 export function Card({ children, style }: CardProps) {
-  return <View style={[styles.card, style]}>{children}</View>
+  const { colors } = useCaminoTheme()
+  return <View style={[styles.card, { backgroundColor: colors.surface }, style]}>{children}</View>
 }
 
 type TextVariant =
@@ -97,8 +106,10 @@ export function Typography({
   color,
   style,
 }: TypographyProps) {
+  const { colors } = useCaminoTheme()
+  const defaultColor = getTypographyColor(variant, colors)
   return (
-    <Text style={[textStyles[variant], color ? { color } : null, style]}>
+    <Text style={[textStyles[variant], { color: color || defaultColor }, style]}>
       {children}
     </Text>
   )
@@ -119,18 +130,20 @@ export function Button({
   disabled = false,
   accentColor = liturgicalPalettes.ordinary.primary,
 }: ButtonProps) {
+  const { colors } = useCaminoTheme()
+
   return (
     <Pressable
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
-        getButtonStyle(variant, accentColor),
+        getButtonStyle(variant, accentColor, colors),
         disabled ? styles.disabled : null,
         pressed && !disabled ? styles.pressed : null,
       ]}
     >
-      <Text style={[styles.buttonText, getButtonTextStyle(variant, accentColor)]}>
+      <Text style={[styles.buttonText, getButtonTextStyle(variant, accentColor, colors)]}>
         {children}
       </Text>
     </Pressable>
@@ -151,18 +164,23 @@ export function LiturgicalHeader({
   subtitle,
 }: LiturgicalHeaderProps) {
   const palette = getLiturgicalPalette(season)
+  const { scheme, colors } = useCaminoTheme()
+  const themedPalette = getThemeLiturgicalPalette(
+    season && season in liturgicalPalettes ? season : 'ordinary',
+    scheme
+  )
 
   return (
-    <Card style={[styles.headerCard, { backgroundColor: palette.light }]}>
-      <View style={[styles.rule, { backgroundColor: palette.primary }]} />
+    <Card style={[styles.headerCard, { backgroundColor: themedPalette.light }]}>
+      <View style={[styles.rule, { backgroundColor: themedPalette.primary }]} />
       <Typography variant="meta">
         {date ? formatCaminoDate(date) : formatCaminoDate()}
       </Typography>
       <Typography variant="screenTitle" style={styles.headerTitle}>
         {title}
       </Typography>
-      <Typography variant="label" color={neutralColors.textSecondary}>
-        {subtitle || palette.name}
+      <Typography variant="label" color={colors.textSecondary}>
+        {subtitle || themedPalette.name || palette.name}
       </Typography>
     </Card>
   )
@@ -211,15 +229,21 @@ export function JournalInput({
   onChangeText,
   placeholder,
 }: JournalInputProps) {
+  const { colors } = useCaminoTheme()
+
   return (
     <TextInput
       value={value}
       onChangeText={onChangeText}
       placeholder={placeholder}
-      placeholderTextColor={neutralColors.textMuted}
+      placeholderTextColor={colors.textMuted}
       multiline
       textAlignVertical="top"
-      style={styles.journalInput}
+      style={[styles.journalInput, {
+        backgroundColor: colors.surface,
+        borderColor: colors.border,
+        color: colors.textPrimary,
+      }]}
     />
   )
 }
@@ -344,7 +368,8 @@ const textStyles = StyleSheet.create({
 
 function getButtonStyle(
   variant: 'primary' | 'secondary' | 'quiet',
-  accentColor: string
+  accentColor: string,
+  colors: NeutralColors
 ): ViewStyle {
   if (variant === 'primary') {
     return {
@@ -361,14 +386,15 @@ function getButtonStyle(
   }
 
   return {
-    backgroundColor: neutralColors.surface,
-    borderColor: neutralColors.border,
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
   }
 }
 
 function getButtonTextStyle(
   variant: 'primary' | 'secondary' | 'quiet',
-  accentColor: string
+  accentColor: string,
+  colors: NeutralColors
 ): TextStyle {
   if (variant === 'primary') {
     return { color: '#FFFDF7' }
@@ -378,5 +404,15 @@ function getButtonTextStyle(
     return { color: accentColor }
   }
 
-  return { color: neutralColors.textPrimary }
+  return { color: colors.textPrimary }
+}
+
+function getTypographyColor(
+  variant: TextVariant,
+  colors: NeutralColors
+) {
+  if (variant === 'eyebrow' || variant === 'meta') {
+    return colors.textMuted
+  }
+  return colors.textPrimary
 }

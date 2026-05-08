@@ -12,7 +12,7 @@ import {
   Screen,
   Typography,
 } from '../../src/components/ui'
-import { neutralColors } from '../../src/theme'
+import { useCaminoTheme } from '../../src/theme'
 
 const todayIso = () => new Date().toISOString().split('T')[0]
 
@@ -50,6 +50,7 @@ export function BreviaryHourScreen({
     isLoading,
     error,
   } = useBreviaryHour(date, hour)
+  const { colors } = useCaminoTheme()
 
   return (
     <Screen>
@@ -74,7 +75,7 @@ export function BreviaryHourScreen({
           </Typography>
           {breviary.sections.map((section, index) => (
             <Card key={`${section.title}-${index}`}>
-              <Typography variant="label" color={neutralColors.textSecondary}>
+              <Typography variant="label" color={colors.textSecondary}>
                 {sectionLabels[section.type]}
               </Typography>
               <Typography variant="sectionTitle" style={styles.sectionTitle}>

@@ -230,12 +230,12 @@ async function fetchVaticanSaint(month: number, day: number) {
   }
 
   const rawLines = stripHtmlToLines(html)
-  const dateIndex = rawLines.findIndex((line) => /^fecha\s+\d{2}\s+/i.test(line))
-  const lines = rawLines
-    .slice(dateIndex === -1 ? 0 : dateIndex + 1)
-    .filter((line) => !isBoilerplate(line))
-  const title = lines.find((line) => !isBoilerplate(line))
-  if (!title || /^buscar$/i.test(title)) {
+  const lines = rawLines.filter((line) => !isBoilerplate(line))
+
+  // Vatican pages don't always contain a stable "Fecha DD ..." marker in the extracted text.
+  // Pick the first saint-like title line instead.
+  const title = lines.find((line) => looksLikeSaintName(line))
+  if (!title || /^buscar$/i.test(title.trim())) {
     return null
   }
 

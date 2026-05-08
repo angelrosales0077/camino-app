@@ -11,11 +11,13 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { Lora_400Regular, Lora_600SemiBold, Lora_400Regular_Italic } from '@expo-google-fonts/lora'
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-google-fonts/inter'
 import { AppProvider } from '../src/providers/AppProvider'
+import { useCaminoTheme } from '../src/theme'
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync()
 
 export default function RootLayout() {
+  const { colors } = useCaminoTheme()
   const [fontsLoaded, fontError] = useFonts({
     'Lora-Regular': Lora_400Regular,
     'Lora-SemiBold': Lora_600SemiBold,
@@ -42,7 +44,7 @@ export default function RootLayout() {
         <Stack
           screenOptions={{
             headerShown: false,
-            contentStyle: { backgroundColor: '#FAFAF7' },
+            contentStyle: { backgroundColor: colors.background },
           }}
         >
           <Stack.Screen name="(tabs)" />
@@ -50,6 +52,7 @@ export default function RootLayout() {
           <Stack.Screen name="auth/register" />
           <Stack.Screen name="gospel/[date]" />
           <Stack.Screen name="journal/[id]" />
+          <Stack.Screen name="diagnostics" />
           <Stack.Screen name="breviary/index" />
           <Stack.Screen name="breviary/office-of-readings" />
           <Stack.Screen name="breviary/lauds" />

@@ -86,12 +86,12 @@ async function seed() {
   const journalEntries = [
     {
       gospelDate: '2026-05-01',
-      content: 'Reflexion breve sobre el Evangelio del dia.',
+      content: 'Reflexión breve sobre el Evangelio del día.',
       createdAt: daysAgo(3),
     },
     {
       gospelDate: '2026-05-02',
-      content: 'Oracion y agradecimiento por el dia.',
+      content: 'Oración y agradecimiento por el día.',
       createdAt: daysAgo(2),
     },
     {
