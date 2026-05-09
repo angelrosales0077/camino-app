@@ -7,7 +7,7 @@ import env from './env'
 
 const API_BASE_URL = env.apiUrl
 
-const joinUrl = (baseUrl: string, path: string) => {
+export const buildApiUrl = (baseUrl: string, path: string) => {
   const base = baseUrl.replace(/\/+$/, '')
   const p = path.startsWith('/') ? path : `/${path}`
 
@@ -30,7 +30,7 @@ export const apiClient = {
       headers['Authorization'] = `Bearer ${token}`
     }
 
-    const url = joinUrl(API_BASE_URL, path)
+    const url = buildApiUrl(API_BASE_URL, path)
 
     if (env.enableApiDiagnostics) {
       console.log('[api:get]', { baseUrl: API_BASE_URL, path, url })
@@ -43,17 +43,10 @@ export const apiClient = {
 
     if (!response.ok) {
       if (env.enableApiDiagnostics) {
-        let bodyText: string | undefined
-        try {
-          bodyText = await response.text()
-        } catch {
-          bodyText = undefined
-        }
         console.log('[api:get:fail]', {
           url,
           status: response.status,
           statusText: response.statusText,
-          body: bodyText?.slice(0, 2000),
         })
       }
       return {
@@ -78,7 +71,7 @@ export const apiClient = {
       headers['Authorization'] = `Bearer ${token}`
     }
 
-    const url = joinUrl(API_BASE_URL, path)
+    const url = buildApiUrl(API_BASE_URL, path)
 
     if (env.enableApiDiagnostics) {
       console.log('[api:post]', { baseUrl: API_BASE_URL, path, url, hasToken: Boolean(token) })
@@ -92,17 +85,10 @@ export const apiClient = {
 
     if (!response.ok) {
       if (env.enableApiDiagnostics) {
-        let bodyText: string | undefined
-        try {
-          bodyText = await response.text()
-        } catch {
-          bodyText = undefined
-        }
         console.log('[api:post:fail]', {
           url,
           status: response.status,
           statusText: response.statusText,
-          body: bodyText?.slice(0, 2000),
         })
       }
       return {
@@ -127,7 +113,7 @@ export const apiClient = {
       headers['Authorization'] = `Bearer ${token}`
     }
 
-    const url = joinUrl(API_BASE_URL, path)
+    const url = buildApiUrl(API_BASE_URL, path)
 
     if (env.enableApiDiagnostics) {
       console.log('[api:put]', { baseUrl: API_BASE_URL, path, url, hasToken: Boolean(token) })
@@ -141,17 +127,10 @@ export const apiClient = {
 
     if (!response.ok) {
       if (env.enableApiDiagnostics) {
-        let bodyText: string | undefined
-        try {
-          bodyText = await response.text()
-        } catch {
-          bodyText = undefined
-        }
         console.log('[api:put:fail]', {
           url,
           status: response.status,
           statusText: response.statusText,
-          body: bodyText?.slice(0, 2000),
         })
       }
       return {
@@ -176,7 +155,7 @@ export const apiClient = {
       headers['Authorization'] = `Bearer ${token}`
     }
 
-    const url = joinUrl(API_BASE_URL, path)
+    const url = buildApiUrl(API_BASE_URL, path)
 
     if (env.enableApiDiagnostics) {
       console.log('[api:patch]', { baseUrl: API_BASE_URL, path, url, hasToken: Boolean(token) })
@@ -190,17 +169,10 @@ export const apiClient = {
 
     if (!response.ok) {
       if (env.enableApiDiagnostics) {
-        let bodyText: string | undefined
-        try {
-          bodyText = await response.text()
-        } catch {
-          bodyText = undefined
-        }
         console.log('[api:patch:fail]', {
           url,
           status: response.status,
           statusText: response.statusText,
-          body: bodyText?.slice(0, 2000),
         })
       }
       return {
@@ -221,7 +193,7 @@ export const apiClient = {
       headers['Authorization'] = `Bearer ${token}`
     }
 
-    const url = joinUrl(API_BASE_URL, path)
+    const url = buildApiUrl(API_BASE_URL, path)
 
     if (env.enableApiDiagnostics) {
       console.log('[api:delete]', { baseUrl: API_BASE_URL, path, url, hasToken: Boolean(token) })
@@ -234,17 +206,10 @@ export const apiClient = {
 
     if (!response.ok) {
       if (env.enableApiDiagnostics) {
-        let bodyText: string | undefined
-        try {
-          bodyText = await response.text()
-        } catch {
-          bodyText = undefined
-        }
         console.log('[api:delete:fail]', {
           url,
           status: response.status,
           statusText: response.statusText,
-          body: bodyText?.slice(0, 2000),
         })
       }
       return {

@@ -6,53 +6,108 @@
 import { useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { useRouter } from 'expo-router'
-import { Button, Card, LiturgicalHeader, Screen, Typography } from '../src/components/ui'
+import {
+  Button,
+  Card,
+  LiturgicalHeader,
+  Screen,
+  Typography,
+} from '../src/components/ui'
 import env from '../src/config/env'
-import { apiClient, API_ENDPOINTS } from '../src/config'
-import type { DailyLiturgy } from '@camino/shared'
+import { API_ENDPOINTS } from '../src/config'
+import { buildApiUrl } from '../src/config/api'
 
-type TestState =
-  | { status: 'idle' }
-  | { status: 'loading' }
-  | { status: 'success'; httpOk: true; liturgy: DailyLiturgy }
-  | { status: 'error'; message: string }
+type TestState = 'idle' | 'loading' | 'done'
+
+type EndpointCheck = {
+  label: string
+  path: string
+  finalUrl: string
+  httpStatus: number | null
+  ok: boolean
+  jsonReceived: boolean
+  error: string | null
+}
+
+const TESTS: Array<{ label: string; path: string }> = [
+  { label: 'Liturgy', path: API_ENDPOINTS.LITURGY_TODAY },
+  { label: 'Readings', path: API_ENDPOINTS.READINGS_TODAY },
+  { label: 'Gospel', path: API_ENDPOINTS.GOSPEL_TODAY },
+  { label: 'Breviary', path: API_ENDPOINTS.BREVIARY_TODAY },
+]
 
 export default function DiagnosticsScreen() {
   const router = useRouter()
-  const [testState, setTestState] = useState<TestState>({ status: 'idle' })
+  const [testState, setTestState] = useState<TestState>('idle')
+  const [results, setResults] = useState<EndpointCheck[]>([])
 
   const apiBaseUrl = useMemo(() => env.apiUrl, [])
 
   const runTest = async () => {
-    setTestState({ status: 'loading' })
-    try {
-      const result = await apiClient.get(API_ENDPOINTS.LITURGY_TODAY)
-      if (!result.success) {
-        setTestState({ status: 'error', message: result.error })
-        return
+    setTestState('loading')
+    const nextResults: EndpointCheck[] = []
+
+    for (const test of TESTS) {
+      const finalUrl = buildApiUrl(apiBaseUrl, test.path)
+      let httpStatus: number | null = null
+      let ok = false
+      let jsonReceived = false
+      let error: string | null = null
+
+      try {
+        const response = await fetch(finalUrl, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        })
+
+        httpStatus = response.status
+        ok = response.ok
+
+        const raw = await response.text()
+        if (raw) {
+          try {
+            JSON.parse(raw)
+            jsonReceived = true
+          } catch {
+            jsonReceived = false
+          }
+        }
+
+        if (!response.ok) {
+          error = `HTTP ${response.status}: ${response.statusText}`
+        }
+      } catch (err) {
+        error = err instanceof Error ? err.message : String(err)
       }
-      setTestState({ status: 'success', httpOk: true, liturgy: result.data as DailyLiturgy })
-    } catch (err) {
-      setTestState({ status: 'error', message: err instanceof Error ? err.message : String(err) })
+
+      nextResults.push({
+        label: test.label,
+        path: test.path,
+        finalUrl,
+        httpStatus,
+        ok,
+        jsonReceived,
+        error,
+      })
     }
+
+    setResults(nextResults)
+    setTestState('done')
   }
 
   return (
     <Screen>
-      <LiturgicalHeader title="Diagnóstico" subtitle="Conexión al backend" />
+      <LiturgicalHeader title="Diagnostico" subtitle="Conexion al backend" />
 
       <Card>
         <Typography variant="sectionTitle">API</Typography>
         <Typography variant="meta" style={styles.mono}>
           {apiBaseUrl}
         </Typography>
-        <Typography variant="meta" style={styles.meta}>
-          Prueba: {API_ENDPOINTS.LITURGY_TODAY}
-        </Typography>
 
         <View style={styles.actions}>
-          <Button onPress={runTest} disabled={testState.status === 'loading'}>
-            {testState.status === 'loading' ? 'Probando...' : 'Test backend connection'}
+          <Button onPress={runTest} disabled={testState === 'loading'}>
+            {testState === 'loading' ? 'Probando...' : 'Probar endpoints publicos'}
           </Button>
           <Button onPress={() => router.back()} variant="secondary">
             Volver
@@ -60,29 +115,25 @@ export default function DiagnosticsScreen() {
         </View>
 
         <View style={styles.result}>
-          {testState.status === 'idle' ? (
+          {testState === 'idle' ? (
             <Typography variant="meta">Sin ejecutar</Typography>
           ) : null}
-          {testState.status === 'loading' ? (
+          {testState === 'loading' ? (
             <Typography variant="meta">Conectando...</Typography>
           ) : null}
-          {testState.status === 'success' ? (
-            <View style={styles.kv}>
-              <Typography variant="meta">OK: respuesta válida</Typography>
-              <Typography variant="meta">
-                hasSaintOfDay: {String(testState.liturgy.hasSaintOfDay)}
-              </Typography>
-              <Typography variant="meta">
-                saintOfDay: {testState.liturgy.saintOfDay?.nameEs ?? '(null)'}
-              </Typography>
-              <Typography variant="meta">
-                otherSaintsOfDay: {String(testState.liturgy.otherSaintsOfDay?.length ?? 0)}
-              </Typography>
-            </View>
-          ) : null}
-          {testState.status === 'error' ? (
-            <Typography variant="meta">Error: {testState.message}</Typography>
-          ) : null}
+          {testState === 'done'
+            ? results.map((item) => (
+              <View key={item.label} style={styles.kv}>
+                <Typography variant="meta">{item.label}</Typography>
+                <Typography variant="meta">Path: {item.path}</Typography>
+                <Typography variant="meta">URL final: {item.finalUrl}</Typography>
+                <Typography variant="meta">HTTP: {item.httpStatus ?? 'N/A'}</Typography>
+                <Typography variant="meta">JSON: {item.jsonReceived ? 'si' : 'no'}</Typography>
+                <Typography variant="meta">OK: {item.ok ? 'si' : 'no'}</Typography>
+                <Typography variant="meta">Error: {item.error ?? '(none)'}</Typography>
+              </View>
+            ))
+            : null}
         </View>
       </Card>
     </Screen>
@@ -90,9 +141,6 @@ export default function DiagnosticsScreen() {
 }
 
 const styles = StyleSheet.create({
-  meta: {
-    marginTop: 8,
-  },
   mono: {
     marginTop: 8,
   },
@@ -104,7 +152,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   kv: {
-    marginTop: 8,
+    marginTop: 14,
     gap: 6,
   },
 })
