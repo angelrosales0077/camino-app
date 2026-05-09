@@ -34,6 +34,7 @@ interface SupabaseAuthErrorBody {
 }
 
 const SESSION_KEY = 'camino.auth.session'
+const AUTH_CALLBACK_URL = 'camino://auth/callback'
 
 function requireSupabaseConfig() {
   if (!env.supabaseUrl || !env.supabaseKey) {
@@ -98,6 +99,9 @@ export async function signUpWithPassword(email: string, password: string) {
     data = await authFetch('/auth/v1/signup', {
       email,
       password,
+      options: {
+        emailRedirectTo: AUTH_CALLBACK_URL,
+      },
     })
     const signUp = normalizeSignUpResponse(data)
 
@@ -127,6 +131,33 @@ export async function refreshSession(refreshToken: string) {
   }) as SupabaseSessionResponse
   await saveSession(session)
   return session
+}
+
+export async function getUserWithAccessToken(accessToken: string) {
+  const { url, key } = requireSupabaseConfig()
+  const response = await fetch(`${url}/auth/v1/user`, {
+    method: 'GET',
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+
+  const data = await response.json()
+
+  if (!response.ok || !hasUser(data)) {
+    throw new Error('No se pudo validar la confirmacion de correo.')
+  }
+
+  if (isRecord(data) && isRecord(data.user) && typeof data.user.id === 'string') {
+    return data.user as unknown as SupabaseAuthUser
+  }
+
+  return data as unknown as SupabaseAuthUser
+}
+
+export function getAuthCallbackUrl() {
+  return AUTH_CALLBACK_URL
 }
 
 function normalizeSignUpResponse(data: unknown): SupabaseSignUpResponse {

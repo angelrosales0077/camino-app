@@ -50,6 +50,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="auth/login" />
           <Stack.Screen name="auth/register" />
+          <Stack.Screen name="auth/callback" />
           <Stack.Screen name="gospel/[date]" />
           <Stack.Screen name="journal/[id]" />
           <Stack.Screen name="diagnostics" />
